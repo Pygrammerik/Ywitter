@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Управление рекламой</h1>
+    
+    <!-- Форма создания рекламы -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Создать новую рекламу</h5>
+            <form action="{{ url_for('admin_ads') }}" method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Заголовок</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="content" class="form-label">Содержание</label>
+                    <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="image" class="form-label">Изображение</label>
+                    <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="target_url" class="form-label">Целевая ссылка</label>
+                    <input type="url" class="form-control" id="target_url" name="target_url" required>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="start_date" class="form-label">Дата начала</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="end_date" class="form-label">Дата окончания</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="budget" class="form-label">Бюджет</label>
+                    <input type="number" class="form-control" id="budget" name="budget" step="0.01" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Создать рекламу</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Список рекламных кампаний -->
+    <h2 class="mb-3">Рекламные кампании</h2>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Заголовок</th>
+                    <th>Статус</th>
+                    <th>Период</th>
+                    <th>Бюджет</th>
+                    <th>Потрачено</th>
+                    <th>Показы</th>
+                    <th>Клики</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad in ads %}
+                <tr>
+                    <td>{{ ad.id }}</td>
+                    <td>{{ ad.title }}</td>
+                    <td>
+                        <span class="badge bg-{{ 'success' if ad.status == 'active' else 'warning' if ad.status == 'pending' else 'danger' }}">
+                            {{ ad.status }}
+                        </span>
+                    </td>
+                    <td>
+                        {{ ad.start_date.strftime('%d.%m.%Y') }} - {{ ad.end_date.strftime('%d.%m.%Y') }}
+                    </td>
+                    <td>{{ "%.2f"|format(ad.budget) }}</td>
+                    <td>{{ "%.2f"|format(ad.spent) }}</td>
+                    <td>{{ ad.impressions|length }}</td>
+                    <td>{{ ad.clicks|length }}</td>
+                    <td>
+                        {% if ad.status == 'pending' %}
+                        <button class="btn btn-sm btn-success approve-ad" data-ad-id="{{ ad.id }}">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger reject-ad" data-ad-id="{{ ad.id }}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        {% endif %}
+                        <button class="btn btn-sm btn-info view-ad" data-ad-id="{{ ad.id }}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Одобрение рекламы
+    document.querySelectorAll('.approve-ad').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const adId = this.dataset.adId;
+            fetch(`/admin/ads/${adId}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                }
+            });
+        });
+    });
+    
+    // Отклонение рекламы
+    document.querySelectorAll('.reject-ad').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('Вы уверены, что хотите отклонить эту рекламу?')) {
+                const adId = this.dataset.adId;
+                fetch(`/admin/ads/${adId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload();
+                    }
+                });
+            }
+        });
+    });
+    
+    // Просмотр рекламы
+    document.querySelectorAll('.view-ad').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const adId = this.dataset.adId;
+            // Здесь можно добавить модальное окно с детальной информацией о рекламе
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card mt-4 animate-fadein">
+    <div class="card-body">
+        <h4 class="mb-3"><i class="bi bi-bell"></i> Уведомления</h4>
+        {% if notifications %}
+            <ul class="list-group list-group-flush">
+            {% for notif in notifications %}
+                <li class="list-group-item d-flex align-items-center {% if not notif.is_read %}fw-bold{% endif %}">
+                    <span class="me-2">
+                        {% if notif.type == 'mention' %}
+                            <i class="bi bi-at"></i>
+                        {% else %}
+                            <i class="bi bi-info-circle"></i>
+                        {% endif %}
+                    </span>
+                    <span>{{ notif.message }}</span>
+                    <span class="ms-auto text-muted small">{{ notif.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Нет уведомлений.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

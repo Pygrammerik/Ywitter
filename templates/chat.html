@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card mb-4 animate-fadein">
+    <div class="card-body">
+        <div class="d-flex align-items-center mb-3">
+            {% if other.avatar %}
+                <img src="{{ url_for('avatar', filename=other.avatar) }}" class="rounded-circle me-3" style="width:48px;height:48px;">
+            {% else %}
+                <i class="bi bi-person-circle display-6 me-3"></i>
+            {% endif %}
+            <div>
+                <h4 class="mb-0">{{ other.username }}
+                    {% if other.username == 'Devoleper' %}
+                        <span title="Admin" style="color:#ffc107; filter: drop-shadow(0 0 2px #ffc107);">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </span>
+                        <span title="Verified" style="color:#1DA1F2;"><i class="bi bi-patch-check-fill"></i></span>
+                    {% elif other.is_verified %}
+                        <span title="Verified" style="color:#1DA1F2;"><i class="bi bi-patch-check-fill"></i></span>
+                    {% endif %}
+                </h4>
+                <div class="text-muted small">{{ _('Chat with this user', lang) }}</div>
+            </div>
+        </div>
+        <div class="mb-3" style="max-height: 350px; overflow-y: auto; background: #f8f9fa; border-radius: 12px; padding: 12px;">
+            {% for msg in messages %}
+                <div class="mb-2 d-flex {% if msg.sender_id == current_user.id %}justify-content-end{% else %}justify-content-start{% endif %}">
+                    <div class="p-2" style="background: {% if msg.sender_id == current_user.id %}#1DA1F2; color: #fff;{% else %}#e3f2fd; color: #222;{% endif %} border-radius: 16px; min-width: 60px; max-width: 70%;">
+                        {{ msg.body }}
+                        <div class="text-end small mt-1" style="opacity:0.7; font-size:0.8em;">{{ msg.timestamp.strftime('%H:%M %d.%m') }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <form method="POST" class="d-flex gap-2">
+            <input type="text" name="body" class="form-control" placeholder="{{ _('Enter a message...', lang) }}" maxlength="1000" required autocomplete="off">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> {{ _('Send', lang) }}</button>
+        </form>
+        <a href="{{ url_for('messages') }}" class="btn btn-link mt-3">&larr; {{ _('Back to dialogs', lang) }}</a>
+    </div>
+</div>
+{% endblock %} 

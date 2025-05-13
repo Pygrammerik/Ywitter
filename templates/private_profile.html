@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <div class="card mt-5">
+            <div class="card-body">
+                {% if user.avatar %}
+                    <img src="{{ url_for('avatar', filename=user.avatar) }}" class="rounded-circle mb-3" style="width:96px;height:96px;">
+                {% else %}
+                    <i class="bi bi-person-circle display-1 mb-3"></i>
+                {% endif %}
+                <h2>{{ user.username }}</h2>
+                <div class="alert alert-warning mt-4">
+                    <i class="bi bi-lock"></i> Этот профиль приватный.<br>Только подписчики могут видеть твиты и информацию.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">#{{ hashtag.name }}</h1>
+    
+    <div class="tweets">
+        {% for tweet in tweets %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex">
+                    <img src="{{ url_for('avatar', filename=tweet.author.avatar) if tweet.author.avatar else url_for('static', filename='default_avatar.png') }}" 
+                         class="rounded-circle me-2" style="width: 48px; height: 48px;">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <a href="{{ url_for('profile', username=tweet.author.username) }}" class="text-decoration-none">
+                                {{ tweet.author.username }}
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted small">
+                            {{ tweet.created_at.strftime('%d.%m.%Y %H:%M') }}
+                            {% if tweet.is_edited %}
+                            <span class="text-muted">(edited)</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <p class="card-text mt-3">{{ tweet.content }}</p>
+                
+                {% if tweet.media_type == 'image' and tweet.media_filename %}
+                <img src="{{ url_for('media', filename=tweet.media_filename) }}" class="img-fluid rounded mb-3">
+                {% elif tweet.media_type == 'video' and tweet.media_filename %}
+                <video controls class="w-100 rounded mb-3">
+                    <source src="{{ url_for('media', filename=tweet.media_filename) }}" type="video/mp4">
+                </video>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary like-btn" data-tweet-id="{{ tweet.id }}">
+                            <i class="fas fa-heart"></i> {{ tweet.likes|length }}
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary retweet-btn" data-tweet-id="{{ tweet.id }}">
+                            <i class="fas fa-retweet"></i> {{ tweet.retweets|length }}
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary reply-btn" data-tweet-id="{{ tweet.id }}">
+                            <i class="fas fa-reply"></i> {{ tweet.replies|length }}
+                        </button>
+                    </div>
+                    
+                    <div class="reactions">
+                        {% for reaction in tweet.reactions %}
+                        <span class="badge bg-light text-dark me-1">
+                            {{ reaction.reaction_type }} {{ reaction|length }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработка лайков
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tweetId = this.dataset.tweetId;
+            fetch(`/like/${tweetId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const count = parseInt(this.textContent.match(/\d+/)[0]);
+                    this.innerHTML = `<i class="fas fa-heart"></i> ${data.liked ? count + 1 : count - 1}`;
+                }
+            });
+        });
+    });
+    
+    // Обработка ретвитов
+    document.querySelectorAll('.retweet-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tweetId = this.dataset.tweetId;
+            fetch(`/retweet/${tweetId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const count = parseInt(this.textContent.match(/\d+/)[0]);
+                    this.innerHTML = `<i class="fas fa-retweet"></i> ${data.retweeted ? count + 1 : count - 1}`;
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

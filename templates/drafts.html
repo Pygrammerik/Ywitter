@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Черновики</h1>
+    
+    <div class="drafts">
+        {% for draft in drafts %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="draft-content">
+                        <p class="card-text">{{ draft.content }}</p>
+                        {% if draft.media_type == 'image' and draft.media_filename %}
+                        <img src="{{ url_for('media', filename=draft.media_filename) }}" class="img-fluid rounded mb-3" style="max-height: 200px;">
+                        {% elif draft.media_type == 'video' and draft.media_filename %}
+                        <video controls class="w-100 rounded mb-3" style="max-height: 200px;">
+                            <source src="{{ url_for('media', filename=draft.media_filename) }}" type="video/mp4">
+                        </video>
+                        {% endif %}
+                    </div>
+                    <div class="draft-actions">
+                        <button class="btn btn-sm btn-primary publish-draft" data-draft-id="{{ draft.id }}">
+                            <i class="fas fa-paper-plane"></i> Опубликовать
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-draft" data-draft-id="{{ draft.id }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <small class="text-muted">
+                    Последнее обновление: {{ draft.updated_at.strftime('%d.%m.%Y %H:%M') }}
+                </small>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            У вас пока нет черновиков
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Публикация черновика
+    document.querySelectorAll('.publish-draft').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const draftId = this.dataset.draftId;
+            fetch(`/publish_draft/${draftId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    this.closest('.card').remove();
+                    if (document.querySelectorAll('.draft').length === 0) {
+                        document.querySelector('.drafts').innerHTML = `
+                            <div class="alert alert-info">
+                                У вас пока нет черновиков
+                            </div>
+                        `;
+                    }
+                }
+            });
+        });
+    });
+    
+    // Удаление черновика
+    document.querySelectorAll('.delete-draft').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('Вы уверены, что хотите удалить этот черновик?')) {
+                const draftId = this.dataset.draftId;
+                fetch(`/delete_draft/${draftId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        this.closest('.card').remove();
+                        if (document.querySelectorAll('.draft').length === 0) {
+                            document.querySelector('.drafts').innerHTML = `
+                                <div class="alert alert-info">
+                                    У вас пока нет черновиков
+                                </div>
+                            `;
+                        }
+                    }
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

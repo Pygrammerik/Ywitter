@@ -1,0 +1,35 @@
+{% for reply in tweet.replies %}
+    <div class="tweet-reply-card ms-5 mt-2 p-2 bg-light rounded">
+        <div class="d-flex align-items-center mb-1">
+            {% if reply.author.avatar %}
+                <img src="{{ url_for('avatar', filename=reply.author.avatar) }}" class="rounded-circle tweet-avatar me-2" style="width:32px;height:32px;">
+            {% else %}
+                <i class="bi bi-person-circle display-6 tweet-avatar me-2" style="font-size:32px;"></i>
+            {% endif %}
+            <b>{{ reply.author.username }}</b>
+            <span class="text-muted small ms-2">{{ reply.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+        </div>
+        <div>{{ reply.content }}</div>
+        <button class="btn btn-sm btn-outline-secondary mt-1 mb-1" type="button" data-bs-toggle="collapse" data-bs-target="#reply-{{ reply.id }}" aria-expanded="false" aria-controls="reply-{{ reply.id }}">
+            <i class="bi bi-reply"></i> Ответить
+        </button>
+        <div class="collapse mt-2" id="reply-{{ reply.id }}">
+            <form method="POST" action="{{ url_for('reply', tweet_id=reply.id) }}" class="d-flex gap-2">
+                <input type="text" name="reply_content" class="form-control" maxlength="280" placeholder="Ваш ответ..." required>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-send"></i> Ответить</button>
+            </form>
+        </div>
+        {% set tweet = reply %}
+        {% include 'tweet_reply.html' %}
+    </div>
+{% endfor %}
+<!-- Стили для тёмной темы -->
+<style>
+.theme-dark .tweet-reply-card {
+    background: #23272f !important;
+    color: #fff !important;
+}
+.theme-dark .tweet-reply-card .text-muted {
+    color: #b0b8c1 !important;
+}
+</style> 

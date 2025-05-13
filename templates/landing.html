@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h1 class="display-4 mb-4">Welcome to Pwitter</h1>
+            <p class="lead mb-4">Share your thoughts, follow interesting people, and stay connected with the world.</p>
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">Login</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <img src="{{ url_for('static', filename='landing.png') }}" alt="Pwitter" class="img-fluid">
+        </div>
+    </div>
+</div>
+{% endblock %} 

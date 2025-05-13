@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="mb-3">{{ _('Following of', lang) }} {{ user.username }}</h3>
+        {% if following %}
+            <ul class="list-group list-group-flush">
+            {% for followed in following %}
+                <li class="list-group-item d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        {% if followed.avatar %}
+                            <img src="{{ url_for('avatar', filename=followed.avatar) }}" class="rounded-circle me-3" style="width: 48px; height: 48px; object-fit: cover; border: 2px solid #eee;">
+                        {% else %}
+                            <i class="bi bi-person-circle display-6 me-3"></i>
+                        {% endif %}
+                        <div>
+                            <a href="{{ url_for('profile', username=followed.username) }}" class="fw-bold text-decoration-none">{{ followed.username }}
+                                {% if followed.username == 'Devoleper' %}
+                                    <span title="Admin" style="color:#ffc107; filter: drop-shadow(0 0 2px #ffc107);">
+                                        <i class="bi bi-shield-lock-fill"></i>
+                                    </span>
+                                    <span title="Verified" style="color:#1DA1F2;"><i class="bi bi-patch-check-fill"></i></span>
+                                {% elif followed.is_verified %}
+                                    <span title="Verified" style="color:#1DA1F2;"><i class="bi bi-patch-check-fill"></i></span>
+                                {% endif %}
+                                {% if followed.is_moderator %}
+                                    <span class="badge bg-success">Модератор</span>
+                                {% endif %}
+                            </a>
+                            <div class="text-muted small">{{ followed.bio or '' }}</div>
+                        </div>
+                    </div>
+                    {% if current_user.is_authenticated and current_user != followed %}
+                        {% set is_following = followed.id in following_ids %}
+                        {% if is_following %}
+                            <a href="{{ url_for('unfollow', username=followed.username) }}" class="btn btn-outline-primary btn-sm">{{ _('Unfollow', lang) }}</a>
+                        {% else %}
+                            <a href="{{ url_for('follow', username=followed.username) }}" class="btn btn-primary btn-sm">{{ _('Follow', lang) }}</a>
+                        {% endif %}
+                    {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">{{ _('Not following anyone yet.', lang) }}</p>
+        {% endif %}
+        <a href="{{ url_for('profile', username=user.username) }}" class="btn btn-link mt-3">&larr; {{ _('Back to profile', lang) }}</a>
+    </div>
+</div>
+{% endblock %} 

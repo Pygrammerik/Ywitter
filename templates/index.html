@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if current_user.is_authenticated %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="{{ url_for('create_tweet') }}" method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <textarea class="form-control" name="content" rows="3" placeholder="What's happening?" maxlength="280"></textarea>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <label class="btn btn-outline-primary">
+                            <i class="fas fa-image"></i>
+                            <input type="file" name="media" accept="image/*" style="display: none;" onchange="this.form.submit()">
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Tweet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="tweets">
+        {% for tweet in tweets %}
+        <div class="card mb-3 tweet-card">
+            <div class="card-body">
+                <div class="d-flex">
+                    {% if tweet.author.avatar %}
+                        <img src="{{ url_for('avatar', filename=tweet.author.avatar) }}" class="rounded-circle me-2 avatar">
+                    {% else %}
+                        <span class="sidebar-avatar d-flex align-items-center justify-content-center me-2" style="background:#e3f2fd; color:#1DA1F2; border:2px solid #b6e0fe; width:48px; height:48px; font-size:32px;">
+                            <i class="bi bi-person-circle" style="font-size:32px;"></i>
+                        </span>
+                    {% endif %}
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <a href="{{ url_for('profile', username=tweet.author.username) }}" class="text-decoration-none">
+                                {{ tweet.author.username }}
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted small">
+                            {{ tweet.created_at.strftime('%d.%m.%Y %H:%M') }}
+                        </p>
+                    </div>
+                </div>
+                
+                <p class="card-text mt-3">{{ tweet.content }}</p>
+                
+                {% if tweet.media_type == 'image' and tweet.media_filename %}
+                <img src="{{ url_for('media', filename=tweet.media_filename) }}" class="img-fluid rounded mb-3">
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                        <form action="{{ url_for('like', tweet_id=tweet.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-heart"></i> {{ tweet.likes|length }}
+                            </button>
+                        </form>
+                        <form action="{{ url_for('retweet', tweet_id=tweet.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-retweet"></i> {{ tweet.retweets|length }}
+                            </button>
+                        </form>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-reply"></i> {{ tweet.replies|length }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

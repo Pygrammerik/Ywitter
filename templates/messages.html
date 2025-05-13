@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card mb-4 animate-fadein">
+    <div class="card-body">
+        <h4 class="mb-3"><i class="bi bi-chat-dots"></i> {{ _('Your dialogs', lang) }}</h4>
+        <form class="mb-4 d-flex gap-2" method="POST" action="{{ url_for('start_chat') }}">
+            <input type="text" name="username" class="form-control" placeholder="{{ _('Start chat with user...', lang) }}" required autocomplete="off">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> {{ _('New chat', lang) }}</button>
+        </form>
+        {% if dialogs %}
+            <ul class="list-group list-group-flush">
+            {% for user in dialogs %}
+                <li class="list-group-item d-flex align-items-center">
+                    {% if user.avatar %}
+                        <img src="{{ url_for('avatar', filename=user.avatar) }}" class="rounded-circle me-3" style="width:40px;height:40px;">
+                    {% else %}
+                        <i class="bi bi-person-circle display-6 me-3"></i>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <a href="{{ url_for('chat', username=user.username) }}" class="fw-bold text-decoration-none tweet-username">{{ user.username }}</a>
+                        {% if user.username == 'Devoleper' %}
+                            <span title="Admin" style="color:#ffc107; filter: drop-shadow(0 0 2px #ffc107);">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </span>
+                            <span title="Verified" style="color:#1DA1F2;"><i class="bi bi-patch-check-fill"></i></span>
+                        {% elif user.is_verified %}
+                            <span title="Verified" style="color:#1DA1F2;"><i class="bi bi-patch-check-fill"></i></span>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">{{ _('No messages.', lang) }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

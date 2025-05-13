@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4"><i class="bi bi-shield-lock"></i> Admin Panel</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Users</h4>
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in users %}
+                            <tr {% if user.is_banned %}class="table-danger"{% endif %}>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% if user.is_banned %}
+                                        <span class="badge bg-danger">Banned</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.username != 'Devoleper' %}
+                                        {% if not user.is_banned %}
+                                        <form method="POST" class="d-inline">
+                                            <input type="hidden" name="action" value="ban_user">
+                                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                                            <button type="submit" class="btn btn-sm btn-danger">Ban</button>
+                                        </form>
+                                        {% else %}
+                                        <form method="POST" class="d-inline">
+                                            <input type="hidden" name="action" value="unban_user">
+                                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                                            <button type="submit" class="btn btn-sm btn-success">Unban</button>
+                                        </form>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Tweets</h4>
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Author</th>
+                                <th>Content</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for tweet in tweets %}
+                            <tr>
+                                <td>{{ tweet.author.username }}</td>
+                                <td>{{ tweet.content|truncate(50) }}</td>
+                                <td>{{ tweet.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <form method="POST" class="d-inline" onsubmit="return confirm('Delete this tweet?');">
+                                        <input type="hidden" name="action" value="delete_tweet">
+                                        <input type="hidden" name="tweet_id" value="{{ tweet.id }}">
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
