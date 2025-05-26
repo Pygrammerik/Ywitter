@@ -16,7 +16,7 @@ A simple Twitter-like social media platform built with Flask.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/ywitter.git
+git clone https://github.com/Pygrammerik/Ywitter.git
 cd ywitter
 ```
 
