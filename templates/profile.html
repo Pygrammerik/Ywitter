@@ -46,7 +46,7 @@
                 <div class="card-body">
                     <div class="d-flex">
                         {% if tweet.author.avatar %}
-                            <img src="{{ url_for('avatar', filename=tweet.author.avatar) }}" class="rounded-circle me-2 avatar">
+                            <img src="{{ url_for('avatar', filename=tweet.author.avatar) }}" class="rounded-circle me-2" style="width: 48px; height: 48px; object-fit: cover;">
                         {% else %}
                             <span class="sidebar-avatar d-flex align-items-center justify-content-center me-2" style="background:#e3f2fd; color:#1DA1F2; border:2px solid #b6e0fe; width:48px; height:48px; font-size:32px;">
                                 <i class="bi bi-person-circle" style="font-size:32px;"></i>
